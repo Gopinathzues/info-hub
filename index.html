@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Info Hub</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json" />
+    <script src="script.js" defer></script>
+
+    <style>
+      :root {
+        --bg: #0b0b0b;
+        --text: #ffffff;
+        --card: rgba(255, 255, 255, 0.12);
+        --accent: #ffb703;
+        --overlay-opacity: 1;
+        --btn-bg: var(--accent);
+        --btn-text: #000;
+        --btn-border: transparent;
+        --link-bg: rgba(255, 255, 255, 0.04);
+        --link-border: rgba(0, 245, 255, 0.6);
+        --link-text: #6febe4;
+        --link-glow: rgba(0, 245, 255, 0.5);
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at top left, #0a0f2c, #050510 60%);
+        opacity: var(--overlay-opacity);
+        z-index: -2;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+            120deg,
+            transparent 60%,
+            rgba(0, 245, 255, 0.12)
+          ),
+          linear-gradient(300deg, transparent 60%, rgba(255, 43, 220, 0.12));
+        opacity: var(--overlay-opacity);
+        animation: cyberMove 18s infinite alternate;
+        z-index: -1;
+      }
+
+      @keyframes cyberMove {
+        from {
+          transform: translate(-5%, -5%);
+        }
+        to {
+          transform: translate(5%, 5%);
+        }
+      }
+
+      .glitch {
+        position: relative;
+      }
+
+      .glitch::before,
+      .glitch::after {
+        content: attr(data-text);
+        position: absolute;
+        left: 0;
+        width: 100%;
+        opacity: 0.8;
+      }
+
+      .glitch::before {
+        color: #ff2bdc;
+        animation: glitch 2s infinite;
+      }
+
+      .glitch::after {
+        color: #d8fc0f;
+        animation: glitch 1.5s infinite reverse;
+      }
+
+      @keyframes glitch {
+        0% {
+          clip-path: inset(0 0 90% 0);
+        }
+        50% {
+          clip-path: inset(40% 0 40% 0);
+        }
+        100% {
+          clip-path: inset(90% 0 0 0);
+        }
+      }
+
+      .light {
+        --bg: #f4f6fb;
+        --text: #0b0b0b;
+        --card: rgba(0, 0, 0, 0.05);
+        --overlay-opacity: 0.15;
+        --btn-bg: #111;
+        --btn-text: #fff;
+        --btn-border: #000;
+        --link-bg: #ffffff;
+        --link-border: #111;
+        --link-text: #111;
+        --link-glow: rgba(0, 0, 0, 0.25);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      .container {
+        max-width: 1000px;
+        padding: 1rem;
+        margin: auto;
+      }
+
+      header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+      }
+
+      header h1 {
+        font-size: 2.2rem;
+        background: linear-gradient(90deg, #0ed6fa, #ff2bdc, #7cff00);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      input,
+      button {
+        padding: 0.6rem;
+        border-radius: 8px;
+        border: none;
+      }
+
+      input {
+        flex: 1;
+      }
+
+      button {
+        cursor: pointer;
+        background: var(--btn-bg);
+        color: var(--btn-text);
+        font-weight: 600;
+        border: 1px solid var(--btn-border);
+        box-shadow: 0 0 14px rgba(0, 0, 0, 0.25);
+        transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
+      }
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+      }
+
+      section {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 245, 255, 0.25);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      section h2 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.6rem;
+        margin-top: 0.6rem;
+      }
+
+      .links a {
+        padding: 0.7rem;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+
+        background: var(--link-bg);
+        border: 1px solid var(--link-border);
+        color: var(--link-text);
+
+        position: relative;
+        overflow: hidden;
+
+        box-shadow: 0 6px 18px var(--link-glow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease,
+          background 0.3s ease, color 0.3s ease;
+      }
+
+      .links a::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          120deg,
+          transparent,
+          rgba(255, 255, 255, 0.35),
+          transparent
+        );
+        transform: translateX(-100%);
+        transition: transform 0.6s;
+      }
+
+      .links a:hover::before {
+        transform: translateX(100%);
+      }
+
+      .links a:hover {
+        transform: translateY(-4px) scale(1.03);
+        box-shadow: 0 10px 26px var(--link-glow);
+      }
+
+      .star {
+        position: absolute;
+        top: 4px;
+        right: 6px;
+        cursor: pointer;
+      }
+      .star {
+        transition: transform 0.2s;
+      }
+
+      .star:active {
+        transform: scale(1.4) rotate(20deg);
+      }
+      .theme-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 1.1rem;
+      }
+      @media (max-width: 600px) {
+        .links {
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        }
+        header h1 {
+          font-size: 1.6rem;
+        }
+        input {
+          min-width: 100%;
+        }
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <header>
+        <h1 class="glitch" data-text="INFO HUB">INFO HUB</h1>
+        <p style="opacity: 0.7">Your digital universe. One command center.</p>
+
+        <div class="controls">
+          <input id="search" placeholder="Search links..." />
+          <button
+            onclick="toggleTheme()"
+            aria-label="Toggle theme"
+            class="theme-btn"
+          >
+            🌙
+          </button>
+        </div>
+      </header>
+
+      <section data-section="quick">
+        <h2>
+          Quick Access <button onclick="toggleSection('quick')">Hide</button>
+        </h2>
+        <div class="links">
+          <a href="https://google.com">Google<span class="star">⭐</span></a>
+          <a href="https://youtube.com">YouTube<span class="star">⭐</span></a>
+          <a href="https://linkedin.com"
+            >LinkedIn<span class="star">⭐</span></a
+          >
+          <a href="https://mail.google.com"
+            >Gmail<span class="star">⭐</span></a
+          >
+          <a href="https://drive.google.com"
+            >Google Drive<span class="star">⭐</span></a
+          >
+          <a href="https://whatsapp.com"
+            >WhatsApp Web<span class="star">⭐</span></a
+          >
+        </div>
+      </section>
+
+      <section data-section="learn">
+        <h2>
+          Learning Platforms
+          <button onclick="toggleSection('learn')">Hide</button>
+        </h2>
+        <div class="links">
+          <a href="https://leetcode.com">DSA<span class="star">⭐</span></a>
+          <a href="https://freecodecamp.org"
+            >Web Dev<span class="star">⭐</span></a
+          >
+          <a href="https://aws.amazon.com/training"
+            >Cloud<span class="star">⭐</span></a
+          >
+          <a href="https://www.cybrary.it"
+            >Cybersecurity<span class="star">⭐</span></a
+          >
+          <a href="https://www.cisco.com"
+            >Networking<span class="star">⭐</span></a
+          >
+          <a href="https://nptel.ac.in"
+            >Engineering Courses (NPTEL)<span class="star">⭐</span></a
+          >
+          <a href="https://www.tinkercad.com"
+            >Embedded Systems & Electronics<span class="star">⭐</span></a
+          >
+        </div>
+      </section>
+
+      <section data-section="info">
+        <h2>
+          Informations<button onclick="toggleSection('info')">Hide</button>
+        </h2>
+        <div class="links">
+          <a href="https://www.bbc.com/news"
+            >Latest News<span class="star">⭐</span></a
+          >
+          <a href="https://astrology.dinakaran.com/category/today_rasipalan/"
+            >Rasi Palan<span class="star">⭐</span></a
+          >
+          <a href="https://www.espn.com"
+            >Sports News<span class="star">⭐</span></a
+          >
+          <a href="https://www.goodreturns.in/gold-rates/"
+            >Gold Rate<span class="star">⭐</span></a
+          >
+          <a href="https://poki.com">Play Games<span class="star">⭐</span></a>
+          <a href="https://weather.com"
+            >Weather Updates<span class="star">⭐</span></a
+          >
+          <a href="https://www.moneycontrol.com"
+            >Stock Market<span class="star">⭐</span></a
+          >
+          <a href="https://www.imdb.com"
+            >Movies & Entertainment<span class="star">⭐</span></a
+          >
+          <a href="https://www.healthline.com"
+            >Health Tips<span class="star">⭐</span></a
+          >
+        </div>
+      </section>
+      <section data-section="apps">
+        <h2>
+          AI & Chatbots<button onclick="toggleSection('apps')">Hide</button>
+        </h2>
+        <div class="links">
+          <a href="https://chat.openai.com"
+            >ChatGPT<span class="star">⭐</span></a
+          >
+          <a href="https://gemini.google.com"
+            >Google Gemini<span class="star">⭐</span></a
+          >
+          <a href="https://www.deepseek.com"
+            >DeepSeek<span class="star">⭐</span></a
+          >
+          <a href="https://x.com/grok"
+            >Grok by AI<span class="star">⭐</span></a
+          >
+          <a href="https://copilot.microsoft.com"
+            >Microsoft Copilot<span class="star">⭐</span></a
+          >
+          <a href="https://claude.ai"
+            >Anthropic Claude<span class="star">⭐</span></a
+          >
+          <a href="https://perplexity.ai"
+            >Perplexity AI<span class="star">⭐</span></a
+          >
+          <a href="https://pi.ai">Inflection Pi<span class="star">⭐</span></a>
+          <a href="https://character.ai"
+            >Character AI<span class="star">⭐</span></a
+          >
+        </div>
+      </section>
+
+      <section>
+        <h2>⭐ Favorites</h2>
+        <div class="links" id="favorites"></div>
+      </section>
+    </div>
+
+    <script>
+      // 🌗 Theme
+      function toggleTheme() {
+        document.body.classList.toggle("light");
+        localStorage.theme = document.body.className;
+        document.querySelector(".theme-btn").textContent =
+          document.body.classList.contains("light") ? "☀️" : "🌙";
+      }
+
+      document.body.className = localStorage.theme || "";
+
+      // 🔍 Search
+      document.getElementById("search").addEventListener("input", (e) => {
+        const value = e.target.value.toLowerCase();
+        document.querySelectorAll(".links a").forEach((a) => {
+          a.style.display = a.textContent.toLowerCase().includes(value)
+            ? "block"
+            : "none";
+        });
+      });
+
+      // 🙈 Hide section
+      function toggleSection(id) {
+        const sec = document.querySelector(`[data-section="${id}"] .links`);
+        sec.classList.toggle("hidden");
+      }
+
+      // ⭐ Favorites
+      const favBox = document.getElementById("favorites");
+      let favs = JSON.parse(localStorage.favs || "[]");
+
+      document.querySelectorAll(".star").forEach((star) => {
+        star.addEventListener("click", (e) => {
+          const link = e.target.parentElement;
+          if (!favs.includes(link.href)) {
+            favs.push(link.href);
+            localStorage.favs = JSON.stringify(favs);
+            renderFavs();
+          }
+        });
+      });
+
+      function renderFavs() {
+        favBox.innerHTML = "";
+        favs.forEach((url) => {
+          const a = document.createElement("a");
+          a.href = url;
+          a.textContent = new URL(url).hostname;
+          favBox.appendChild(a);
+        });
+      }
+      renderFavs();
+
+      // ⌨ Keyboard shortcut
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "/") document.getElementById("search").focus();
+      });
+    </script>
+  </body>
+</html>
